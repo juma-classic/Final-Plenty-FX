@@ -32,7 +32,7 @@ export default function DTraderIframe() {
             token1: token,
             cur1: currency,
             lang: 'EN',
-            app_id: '119554'  // Replace with your app ID
+            app_id: '119552'  // Replace with your app ID
         });
 
         setUrl(`https://deriv-dtrader.vercel.app/dtrader?${params}`);
@@ -288,7 +288,7 @@ export default function DTraderPage() {
                 token1: token,
                 cur1: currency,
                 lang: 'EN',
-                app_id: '119554'
+                app_id: '119552'
             });
 
             setUrl(`https://deriv-dtrader.vercel.app/dtrader?${params}`);
@@ -390,3 +390,4 @@ export default function DTraderPage() {
 **That's it! You now have DTrader integrated in 5 minutes!** 🎉
 
 For more advanced features, see `DTRADER_INTEGRATION_GUIDE.md`
+

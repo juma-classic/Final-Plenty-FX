@@ -8,7 +8,7 @@ Successfully implemented a fully functional Copy Trading feature for PLENTY FX t
 ### Core Features Implemented
 
 1. **Real-Time WebSocket Integration**
-   - Uses `robust-websocket-manager.js` with app ID 119554
+   - Uses `robust-websocket-manager.js` with app ID 119552
    - Automatic reconnection and connection monitoring
    - Master account authorization and balance tracking
    - Multiple follower account connections
@@ -135,7 +135,7 @@ class CopyTradingManager {
 - Uses existing `robust-websocket-manager.js`
 - Integrates with main app authentication
 - Reads token from localStorage (`active_loginid_token`)
-- Uses app ID 119554 (PLENTY FX)
+- Uses app ID 119552 (PLENTY FX)
 
 ### Navigation Integration
 - Added Copy Trading tab after DTrader
@@ -246,3 +246,4 @@ The Copy Trading feature is now fully functional and ready for testing with real
 
 **Status**: ✅ COMPLETE - Ready for testing
 **Next Step**: Test with actual Deriv tokens and real trades
+

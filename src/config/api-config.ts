@@ -7,7 +7,7 @@
 
 export const API_CONFIG = {
     // Default App ID - Replace with your own from https://api.deriv.com/app-registration
-    APP_ID: process.env.DERIV_APP_ID || '119554',
+    APP_ID: process.env.DERIV_APP_ID || '119552',
     
     // WebSocket Endpoints
     WEBSOCKET_ENDPOINTS: {
@@ -67,3 +67,4 @@ export const SERVER_OPTIONS = [
     { value: 'production', label: 'Deriv WebSocket (Production)', url: API_CONFIG.WEBSOCKET_ENDPOINTS.production },
     { value: 'binary', label: 'Binary WebSocket (Legacy)', url: API_CONFIG.WEBSOCKET_ENDPOINTS.binary },
 ] as const;
+

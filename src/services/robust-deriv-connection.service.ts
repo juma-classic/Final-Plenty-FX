@@ -33,7 +33,7 @@ export class RobustDerivConnectionService {
 
     constructor(config: Partial<ConnectionConfig> = {}) {
         this.config = {
-            appId: '119554', // Your App ID
+            appId: '119552', // Your App ID
             maxRetries: Infinity, // Never give up
             retryDelay: 1000, // Start with 1 second
             heartbeatInterval: 30000, // 30 seconds
@@ -451,3 +451,4 @@ export class RobustDerivConnectionService {
 
 // Create singleton instance
 export const robustDerivConnection = new RobustDerivConnectionService();
+

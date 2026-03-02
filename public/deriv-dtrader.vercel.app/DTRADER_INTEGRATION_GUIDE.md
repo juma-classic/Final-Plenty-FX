@@ -64,7 +64,7 @@ function DTraderIframe() {
             const currency = accountData?.currency || 'USD';
             
             // Get app ID (replace with your actual app ID)
-            const appId = process.env.REACT_APP_DERIV_APP_ID || '119554';
+            const appId = process.env.REACT_APP_DERIV_APP_ID || '119552';
             
             // Build DTrader URL with parameters
             const params = new URLSearchParams({
@@ -514,7 +514,7 @@ function decryptToken(encryptedToken) {
 - [ ] **Token Injection Works**
   ```bash
   # Test URL manually
-  https://deriv-dtrader.vercel.app/dtrader?acct1=CR123456&token1=test_token&cur1=USD&lang=EN&app_id=119554
+  https://deriv-dtrader.vercel.app/dtrader?acct1=CR123456&token1=test_token&cur1=USD&lang=EN&app_id=119552
   ```
 
 - [ ] **Auto-Login Functions**
@@ -780,7 +780,7 @@ https://deriv-dtrader.vercel.app/dtrader?
   token1=YOUR_API_TOKEN&
   cur1=USD&
   lang=EN&
-  app_id=119554
+  app_id=119552
 ```
 
 That's it! DTrader will auto-authenticate and users can start trading immediately. 🚀
@@ -804,3 +804,4 @@ That's it! DTrader will auto-authenticate and users can start trading immediatel
 ---
 
 **You now have everything needed to integrate DTrader with token injection!** 🎉
+

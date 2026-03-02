@@ -25,7 +25,7 @@ class DerivAPIInitializer {
     private connectionListeners: Set<(connected: boolean) => void> = new Set();
 
     private readonly config: DerivAPIConfig = {
-        appId: 119554,
+        appId: 119552,
         endpoint: 'wss://ws.derivws.com/websockets/v3',
         language: 'en',
         brand: 'deriv',
@@ -413,3 +413,4 @@ if (typeof window !== 'undefined') {
 
 // Export types for TypeScript support
 export type { APIInstance, DerivAPIConfig };
+
