@@ -15,7 +15,7 @@ export const TradersDenLoader: React.FC<TradersDenLoaderProps> = ({ onLoadComple
         'Initializing Trading Core...',
         'Synchronizing Market Algorithms...',
         'Calibrating Trading Mechanisms...',
-        'Access Granted. Welcome to LEILA FX.',
+        'Access Granted. Welcome to PLENTY FX.',
     ];
 
 
@@ -59,7 +59,7 @@ export const TradersDenLoader: React.FC<TradersDenLoaderProps> = ({ onLoadComple
     }, [duration, onLoadComplete, statuses.length]);
 
     return (
-        <div className={`leila-fx-loader ${isComplete ? 'fade-out' : ''}`}>
+        <div className={`plenty-fx-loader ${isComplete ? 'fade-out' : ''}`}>
             {/* Particle Background */}
             <div className='particle-background'>
                 {[...Array(30)].map((_, i) => (

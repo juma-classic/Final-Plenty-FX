@@ -119,7 +119,7 @@ const AppHeader = observer(() => {
                         tertiary
                         onClick={() => {
                             window.location.replace(
-                                'https://oauth.deriv.com/oauth2/authorize?app_id=119554&l=EN&brand=leila-fx'
+                                'https://oauth.deriv.com/oauth2/authorize?app_id=119554&l=EN&brand=plenty-fx'
                             );
                         }}
                     >
