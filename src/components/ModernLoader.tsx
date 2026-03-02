@@ -38,6 +38,17 @@ const ModernLoader: React.FC<ModernLoaderProps> = ({ onFinish }) => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
+        // Detect mobile device
+        const isMobile = window.innerWidth <= 768;
+        
+        // Adjust sizes and counts for mobile
+        const currencyCount = isMobile ? 15 : 25;
+        const currencySizeMin = isMobile ? 12 : 20;
+        const currencySizeMax = isMobile ? 20 : 30;
+        const arrowCount = isMobile ? 8 : 15;
+        const arrowSize = isMobile ? 0.6 : 1;
+        const chartLineCount = isMobile ? 5 : 8;
+
         // Currency symbols floating upward
         const currencies: Array<{
             x: number;
@@ -51,14 +62,14 @@ const ModernLoader: React.FC<ModernLoaderProps> = ({ onFinish }) => {
         }> = [];
 
         const currencySymbols = ['$', '€', '£', '¥', '₿', '₹', '₽', 'Ƀ'];
-        for (let i = 0; i < 25; i++) {
+        for (let i = 0; i < currencyCount; i++) {
             currencies.push({
                 x: Math.random() * canvas.width,
                 y: Math.random() * canvas.height,
                 symbol: currencySymbols[Math.floor(Math.random() * currencySymbols.length)],
                 speed: Math.random() * 0.8 + 0.3,
                 opacity: Math.random() * 0.4 + 0.1,
-                size: Math.random() * 30 + 20,
+                size: Math.random() * (currencySizeMax - currencySizeMin) + currencySizeMin,
                 rotation: Math.random() * Math.PI * 2,
                 rotationSpeed: (Math.random() - 0.5) * 0.02,
             });
@@ -73,7 +84,7 @@ const ModernLoader: React.FC<ModernLoaderProps> = ({ onFinish }) => {
             color: string;
         }> = [];
 
-        for (let i = 0; i < 15; i++) {
+        for (let i = 0; i < arrowCount; i++) {
             arrows.push({
                 x: Math.random() * canvas.width,
                 y: Math.random() * canvas.height,
@@ -91,7 +102,7 @@ const ModernLoader: React.FC<ModernLoaderProps> = ({ onFinish }) => {
             color: string;
         }> = [];
 
-        for (let i = 0; i < 8; i++) {
+        for (let i = 0; i < chartLineCount; i++) {
             const points = [];
             const startY = Math.random() * canvas.height;
             for (let j = 0; j < 10; j++) {
@@ -121,8 +132,8 @@ const ModernLoader: React.FC<ModernLoaderProps> = ({ onFinish }) => {
             chartLines.forEach(line => {
                 ctx.globalAlpha = line.opacity;
                 ctx.strokeStyle = line.color;
-                ctx.lineWidth = 2;
-                ctx.shadowBlur = 10;
+                ctx.lineWidth = isMobile ? 1.5 : 2;
+                ctx.shadowBlur = isMobile ? 6 : 10;
                 ctx.shadowColor = line.color;
 
                 ctx.beginPath();
@@ -158,7 +169,7 @@ const ModernLoader: React.FC<ModernLoaderProps> = ({ onFinish }) => {
                 ctx.save();
                 ctx.translate(currency.x, currency.y);
                 ctx.rotate(currency.rotation);
-                ctx.shadowBlur = 15;
+                ctx.shadowBlur = isMobile ? 10 : 15;
                 ctx.shadowColor = '#FFD700';
                 ctx.fillText(currency.symbol, 0, 0);
                 ctx.restore();
@@ -181,21 +192,24 @@ const ModernLoader: React.FC<ModernLoaderProps> = ({ onFinish }) => {
                 ctx.globalAlpha = arrow.opacity;
                 ctx.strokeStyle = arrow.color;
                 ctx.fillStyle = arrow.color;
-                ctx.lineWidth = 3;
-                ctx.shadowBlur = 15;
+                ctx.lineWidth = isMobile ? 2 : 3;
+                ctx.shadowBlur = isMobile ? 10 : 15;
                 ctx.shadowColor = arrow.color;
 
-                // Arrow shaft
+                // Arrow shaft (scaled for mobile)
+                const shaftLength = 20 * arrowSize;
                 ctx.beginPath();
-                ctx.moveTo(arrow.x, arrow.y + 20);
-                ctx.lineTo(arrow.x, arrow.y - 20);
+                ctx.moveTo(arrow.x, arrow.y + shaftLength);
+                ctx.lineTo(arrow.x, arrow.y - shaftLength);
                 ctx.stroke();
 
-                // Arrow head
+                // Arrow head (scaled for mobile)
+                const headWidth = 8 * arrowSize;
+                const headHeight = 10 * arrowSize;
                 ctx.beginPath();
-                ctx.moveTo(arrow.x, arrow.y - 20);
-                ctx.lineTo(arrow.x - 8, arrow.y - 10);
-                ctx.lineTo(arrow.x + 8, arrow.y - 10);
+                ctx.moveTo(arrow.x, arrow.y - shaftLength);
+                ctx.lineTo(arrow.x - headWidth, arrow.y - shaftLength + headHeight);
+                ctx.lineTo(arrow.x + headWidth, arrow.y - shaftLength + headHeight);
                 ctx.closePath();
                 ctx.fill();
 
