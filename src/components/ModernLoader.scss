@@ -1,29 +1,29 @@
-// LEILA FX Loader - Bull vs Bear Theme
+// PLENTY FX Loader - Premium Trading Theme
 .zeus-loader {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: linear-gradient(135deg, #0a0e27 0%, #0f1419 50%, #140a14 100%);
+    background: linear-gradient(135deg, #0a0e27 0%, #1a1a2e 50%, #16213e 100%);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 10000;
     overflow: hidden;
 
-    // Matrix-style falling canvas (now trading chart background)
+    // Trading animation canvas
     &__matrix-canvas {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        opacity: 0.8;
+        opacity: 0.9;
         z-index: 1;
     }
 
-    // Lightning flash effect (now bull/bear energy flash)
+    // Market energy flash effect
     &__lightning-flash {
         position: absolute;
         top: 0;
@@ -31,13 +31,13 @@
         width: 100%;
         height: 100%;
         background: radial-gradient(
-            circle at 30% 50%,
-            rgba(0, 191, 255, 0.2) 0%,
-            transparent 40%
+            circle at 50% 50%,
+            rgba(0, 255, 136, 0.15) 0%,
+            transparent 50%
         ),
         radial-gradient(
-            circle at 70% 50%,
-            rgba(255, 68, 68, 0.2) 0%,
+            circle at 30% 70%,
+            rgba(255, 215, 0, 0.1) 0%,
             transparent 40%
         );
         opacity: 0;
@@ -47,11 +47,11 @@
 
         &.active {
             opacity: 1;
-            animation: energyFlash 0.2s ease-out;
+            animation: marketFlash 0.2s ease-out;
         }
     }
 
-    // Storm clouds background (now bull/bear energy clouds)
+    // Floating gradient orbs
     &__storm-bg {
         position: absolute;
         top: 0;
@@ -64,34 +64,34 @@
     &__cloud {
         position: absolute;
         border-radius: 50%;
-        filter: blur(40px);
-        animation: cloudDrift 20s infinite ease-in-out;
+        filter: blur(60px);
+        animation: orbFloat 25s infinite ease-in-out;
 
         &--1 {
-            width: 400px;
-            height: 200px;
-            top: 10%;
-            left: -10%;
-            background: radial-gradient(ellipse, rgba(0, 127, 255, 0.3) 0%, transparent 70%);
+            width: 500px;
+            height: 300px;
+            top: 5%;
+            left: -15%;
+            background: radial-gradient(ellipse, rgba(0, 255, 136, 0.2) 0%, transparent 70%);
             animation-delay: 0s;
         }
 
         &--2 {
-            width: 500px;
-            height: 250px;
-            top: 20%;
-            right: -15%;
-            background: radial-gradient(ellipse, rgba(255, 68, 68, 0.3) 0%, transparent 70%);
-            animation-delay: 5s;
+            width: 600px;
+            height: 350px;
+            top: 30%;
+            right: -20%;
+            background: radial-gradient(ellipse, rgba(255, 215, 0, 0.25) 0%, transparent 70%);
+            animation-delay: 8s;
         }
 
         &--3 {
-            width: 450px;
-            height: 220px;
-            bottom: 15%;
-            left: 20%;
-            background: radial-gradient(ellipse, rgba(0, 191, 255, 0.2) 0%, transparent 70%);
-            animation-delay: 10s;
+            width: 550px;
+            height: 320px;
+            bottom: 10%;
+            left: 15%;
+            background: radial-gradient(ellipse, rgba(0, 191, 255, 0.18) 0%, transparent 70%);
+            animation-delay: 16s;
         }
     }
 
@@ -356,7 +356,7 @@
 }
 
 // Animations
-@keyframes energyFlash {
+@keyframes marketFlash {
     0%,
     100% {
         opacity: 0;
@@ -366,23 +366,16 @@
     }
 }
 
-@keyframes lightningFlash {
+@keyframes orbFloat {
     0%,
     100% {
-        opacity: 0;
+        transform: translate(0, 0) scale(1);
     }
-    50% {
-        opacity: 1;
+    33% {
+        transform: translate(40px, -30px) scale(1.1);
     }
-}
-
-@keyframes cloudDrift {
-    0%,
-    100% {
-        transform: translateX(0) translateY(0);
-    }
-    50% {
-        transform: translateX(30px) translateY(-20px);
+    66% {
+        transform: translate(-30px, 40px) scale(0.95);
     }
 }
 

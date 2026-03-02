@@ -27,7 +27,7 @@ const ModernLoader: React.FC<ModernLoaderProps> = ({ onFinish }) => {
         'Elevate your trading experience',
     ];
 
-    // Trading chart background with bull/bear theme
+    // Trading-themed background animation
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -38,46 +38,73 @@ const ModernLoader: React.FC<ModernLoaderProps> = ({ onFinish }) => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        // Candlestick data
-        const candlesticks: Array<{
+        // Currency symbols floating upward
+        const currencies: Array<{
             x: number;
             y: number;
-            height: number;
-            isBullish: boolean;
+            symbol: string;
             speed: number;
             opacity: number;
+            size: number;
+            rotation: number;
+            rotationSpeed: number;
         }> = [];
 
-        const numCandlesticks = 40;
-        for (let i = 0; i < numCandlesticks; i++) {
-            candlesticks.push({
+        const currencySymbols = ['$', '€', '£', '¥', '₿', '₹', '₽', 'Ƀ'];
+        for (let i = 0; i < 25; i++) {
+            currencies.push({
                 x: Math.random() * canvas.width,
                 y: Math.random() * canvas.height,
-                height: Math.random() * 40 + 20,
-                isBullish: Math.random() > 0.5,
-                speed: Math.random() * 0.5 + 0.2,
-                opacity: Math.random() * 0.3 + 0.1,
+                symbol: currencySymbols[Math.floor(Math.random() * currencySymbols.length)],
+                speed: Math.random() * 0.8 + 0.3,
+                opacity: Math.random() * 0.4 + 0.1,
+                size: Math.random() * 30 + 20,
+                rotation: Math.random() * Math.PI * 2,
+                rotationSpeed: (Math.random() - 0.5) * 0.02,
             });
         }
 
-        // Particle system for energy effect
-        const particles: Array<{
+        // Rising profit arrows
+        const arrows: Array<{
             x: number;
             y: number;
-            vx: number;
-            vy: number;
+            speed: number;
+            opacity: number;
             color: string;
-            size: number;
         }> = [];
 
-        for (let i = 0; i < 50; i++) {
-            particles.push({
+        for (let i = 0; i < 15; i++) {
+            arrows.push({
                 x: Math.random() * canvas.width,
                 y: Math.random() * canvas.height,
-                vx: (Math.random() - 0.5) * 2,
-                vy: (Math.random() - 0.5) * 2,
-                color: Math.random() > 0.5 ? '#00BFFF' : '#FF4444',
-                size: Math.random() * 3 + 1,
+                speed: Math.random() * 1.2 + 0.5,
+                opacity: Math.random() * 0.5 + 0.2,
+                color: '#00FF88',
+            });
+        }
+
+        // Animated chart lines
+        const chartLines: Array<{
+            points: Array<{ x: number; y: number }>;
+            speed: number;
+            opacity: number;
+            color: string;
+        }> = [];
+
+        for (let i = 0; i < 8; i++) {
+            const points = [];
+            const startY = Math.random() * canvas.height;
+            for (let j = 0; j < 10; j++) {
+                points.push({
+                    x: (canvas.width / 10) * j,
+                    y: startY + (Math.random() - 0.5) * 100,
+                });
+            }
+            chartLines.push({
+                points,
+                speed: Math.random() * 0.3 + 0.1,
+                opacity: Math.random() * 0.2 + 0.05,
+                color: Math.random() > 0.5 ? '#00BFFF' : '#FFD700',
             });
         }
 
@@ -90,100 +117,99 @@ const ModernLoader: React.FC<ModernLoaderProps> = ({ onFinish }) => {
             ctx.fillStyle = bgGradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Draw candlesticks
-            candlesticks.forEach(candle => {
-                ctx.globalAlpha = candle.opacity;
-
-                // Candlestick body
-                const bodyWidth = 8;
-                const wickWidth = 2;
-
-                // Draw wick
-                ctx.fillStyle = candle.isBullish ? '#00BFFF' : '#FF4444';
-                ctx.fillRect(candle.x - wickWidth / 2, candle.y - candle.height / 2, wickWidth, candle.height);
-
-                // Draw body
-                const bodyHeight = candle.height * 0.6;
-                const gradient = ctx.createLinearGradient(
-                    candle.x,
-                    candle.y - bodyHeight / 2,
-                    candle.x,
-                    candle.y + bodyHeight / 2
-                );
-
-                if (candle.isBullish) {
-                    gradient.addColorStop(0, '#00BFFF');
-                    gradient.addColorStop(1, '#0080FF');
-                } else {
-                    gradient.addColorStop(0, '#FF4444');
-                    gradient.addColorStop(1, '#CC0000');
-                }
-
-                ctx.fillStyle = gradient;
-                ctx.fillRect(candle.x - bodyWidth / 2, candle.y - bodyHeight / 2, bodyWidth, bodyHeight);
-
-                // Glow effect
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = candle.isBullish ? '#00BFFF' : '#FF4444';
-
-                // Move candlestick
-                candle.y += candle.speed;
-                if (candle.y > canvas.height + 50) {
-                    candle.y = -50;
-                    candle.x = Math.random() * canvas.width;
-                    candle.isBullish = Math.random() > 0.5;
-                }
-            });
-
-            ctx.shadowBlur = 0;
-
-            // Draw energy particles
-            particles.forEach(particle => {
-                ctx.globalAlpha = 0.6;
-                ctx.fillStyle = particle.color;
-                ctx.beginPath();
-                ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Add glow
+            // Draw animated chart lines
+            chartLines.forEach(line => {
+                ctx.globalAlpha = line.opacity;
+                ctx.strokeStyle = line.color;
+                ctx.lineWidth = 2;
                 ctx.shadowBlur = 10;
-                ctx.shadowColor = particle.color;
-                ctx.fill();
+                ctx.shadowColor = line.color;
 
-                // Move particle
-                particle.x += particle.vx;
-                particle.y += particle.vy;
+                ctx.beginPath();
+                line.points.forEach((point, index) => {
+                    if (index === 0) {
+                        ctx.moveTo(point.x, point.y);
+                    } else {
+                        ctx.lineTo(point.x, point.y);
+                    }
+                });
+                ctx.stroke();
 
-                // Wrap around screen
-                if (particle.x < 0) particle.x = canvas.width;
-                if (particle.x > canvas.width) particle.x = 0;
-                if (particle.y < 0) particle.y = canvas.height;
-                if (particle.y > canvas.height) particle.y = 0;
-            });
-
-            ctx.globalAlpha = 1;
-            ctx.shadowBlur = 0;
-
-            // Draw connecting lines between nearby particles (energy web)
-            particles.forEach((p1, i) => {
-                particles.slice(i + 1).forEach(p2 => {
-                    const dx = p1.x - p2.x;
-                    const dy = p1.y - p2.y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-
-                    if (distance < 150) {
-                        ctx.globalAlpha = (1 - distance / 150) * 0.2;
-                        ctx.strokeStyle = p1.color;
-                        ctx.lineWidth = 1;
-                        ctx.beginPath();
-                        ctx.moveTo(p1.x, p1.y);
-                        ctx.lineTo(p2.x, p2.y);
-                        ctx.stroke();
+                // Move line points
+                line.points.forEach(point => {
+                    point.x -= line.speed;
+                    if (point.x < -50) {
+                        point.x = canvas.width + 50;
+                        point.y = Math.random() * canvas.height;
                     }
                 });
             });
 
+            ctx.shadowBlur = 0;
+
+            // Draw currency symbols
+            currencies.forEach(currency => {
+                ctx.globalAlpha = currency.opacity;
+                ctx.fillStyle = '#FFD700';
+                ctx.font = `${currency.size}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                ctx.save();
+                ctx.translate(currency.x, currency.y);
+                ctx.rotate(currency.rotation);
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = '#FFD700';
+                ctx.fillText(currency.symbol, 0, 0);
+                ctx.restore();
+
+                // Move currency upward
+                currency.y -= currency.speed;
+                currency.rotation += currency.rotationSpeed;
+
+                if (currency.y < -50) {
+                    currency.y = canvas.height + 50;
+                    currency.x = Math.random() * canvas.width;
+                    currency.symbol = currencySymbols[Math.floor(Math.random() * currencySymbols.length)];
+                }
+            });
+
+            ctx.shadowBlur = 0;
+
+            // Draw profit arrows
+            arrows.forEach(arrow => {
+                ctx.globalAlpha = arrow.opacity;
+                ctx.strokeStyle = arrow.color;
+                ctx.fillStyle = arrow.color;
+                ctx.lineWidth = 3;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = arrow.color;
+
+                // Arrow shaft
+                ctx.beginPath();
+                ctx.moveTo(arrow.x, arrow.y + 20);
+                ctx.lineTo(arrow.x, arrow.y - 20);
+                ctx.stroke();
+
+                // Arrow head
+                ctx.beginPath();
+                ctx.moveTo(arrow.x, arrow.y - 20);
+                ctx.lineTo(arrow.x - 8, arrow.y - 10);
+                ctx.lineTo(arrow.x + 8, arrow.y - 10);
+                ctx.closePath();
+                ctx.fill();
+
+                // Move arrow upward
+                arrow.y -= arrow.speed;
+
+                if (arrow.y < -50) {
+                    arrow.y = canvas.height + 50;
+                    arrow.x = Math.random() * canvas.width;
+                }
+            });
+
             ctx.globalAlpha = 1;
+            ctx.shadowBlur = 0;
         };
 
         const interval = setInterval(draw, 33);
