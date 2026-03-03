@@ -7,7 +7,6 @@ import { initFormErrorMessages } from '@/components/shared/utils/validation/decl
 import { api_base } from '@/external/bot-skeleton';
 import { useOauth2 } from '@/hooks/auth/useOauth2';
 import { useApiBase } from '@/hooks/useApiBase';
-import { useFakeRealBalanceSync } from '@/hooks/useFakeRealBalanceSync';
 import { useStore } from '@/hooks/useStore';
 import { TLandingCompany, TSocketResponseData } from '@/types/api-types';
 import { useTranslations } from '@deriv-com/translations';
@@ -22,9 +21,6 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
     const { client, common } = useStore() ?? {};
 
     const { currentLang } = useTranslations();
-
-    // Auto-sync fake real balance with demo trading
-    useFakeRealBalanceSync();
 
     const { oAuthLogout, isOAuth2Enabled } = useOauth2({ handleLogout: async () => client?.logout(), client });
 
