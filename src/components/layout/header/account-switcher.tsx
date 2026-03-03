@@ -339,9 +339,10 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                     ...activeAccount,
                     is_virtual: 1, // Set to 1 (number) to show Demo icon
                     isVirtual: true,
-                    currency: 'virtual', // Set to 'virtual' to force Demo icon
+                    currency: activeAccount.currency, // Keep USD for the label
                     balance: formattedDemoBalance, // Show actual demo balance with commas
                     loginid: activeAccount.loginid,
+                    icon: <CurrencyIcon currency='virtual' isVirtual={true} />, // Force Demo icon
                 };
             }
             
@@ -353,6 +354,7 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                 currency: 'USD',
                 balance: currentFakeBalance, // Show fake real balance
                 loginid: activeAccount.loginid,
+                icon: <CurrencyIcon currency='usd' isVirtual={false} />, // Force US flag
             };
         }
         return activeAccount;
