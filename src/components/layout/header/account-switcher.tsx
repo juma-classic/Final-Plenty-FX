@@ -194,6 +194,12 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     const switchAccount = async (loginId: number) => {
         if (loginId.toString() === activeAccount?.loginid) return;
 
+        // In fake real mode, block switching to the fake USD account (CR7125309)
+        if (isFakeRealMode && loginId.toString() === 'CR7125309') {
+            console.log('🚫 Cannot switch to fake USD account - you are trading on demo account');
+            return;
+        }
+
         // Use fake account service to check if switching should be blocked
         if (fakeAccountService.shouldBlockAccountSwitch(loginId.toString())) {
             fakeAccountService.logFakeAccountInteraction('switch_blocked', loginId.toString());
