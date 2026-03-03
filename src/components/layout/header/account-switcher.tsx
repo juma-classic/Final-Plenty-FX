@@ -100,6 +100,11 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     // Check if fake real mode is active (declare early so it can be used in useMemo)
     const isFakeRealMode = fakeAccountService.isFakeRealModeActive() && Boolean(activeAccount?.is_virtual);
     
+    // Track which tab should be active (0 = Real, 1 = Demo)
+    const [activeTabIndex, setActiveTabIndex] = useState<number>(
+        isFakeRealMode ? 0 : (activeAccount?.is_virtual ? 1 : 0)
+    );
+    
     // Force re-render when fake balance updates
     const [, setBalanceUpdateTrigger] = useState(0);
     useEffect(() => {
@@ -109,6 +114,15 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
         window.addEventListener('fake-real-balance-updated', handleBalanceUpdate);
         return () => window.removeEventListener('fake-real-balance-updated', handleBalanceUpdate);
     }, []);
+
+    // Update active tab when fake real mode or account changes
+    useEffect(() => {
+        if (isFakeRealMode) {
+            setActiveTabIndex(0); // Force Real tab in fake real mode
+        } else {
+            setActiveTabIndex(activeAccount?.is_virtual ? 1 : 0); // Normal behavior
+        }
+    }, [isFakeRealMode, activeAccount?.is_virtual]);
 
     const modifiedAccountList = useMemo(() => {
         return accountList?.map(account => {
@@ -247,14 +261,20 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     const realTabMFAccounts = modifiedMFAccountList;
 
     // In fake real mode, override top display to show US flag with fake real balance
-    const displayActiveAccount = isFakeRealMode && activeAccount?.is_virtual
-        ? {
-              ...activeAccount,
-              is_virtual: false, // Mark as non-virtual to show US flag
-              currency: 'USD',
-              balance: currentFakeBalance, // Show fake real balance
-          }
-        : activeAccount;
+    // Also ensure Real tab opens by default (not Demo tab)
+    const displayActiveAccount = useMemo(() => {
+        if (isFakeRealMode && activeAccount?.is_virtual) {
+            return {
+                ...activeAccount,
+                is_virtual: false, // Set to false to open Real tab by default
+                isVirtual: false, // Also set the camelCase version
+                currency: 'USD',
+                balance: currentFakeBalance, // Show fake real balance
+                loginid: activeAccount.loginid, // Keep original loginid
+            };
+        }
+        return activeAccount;
+    }, [isFakeRealMode, activeAccount, currentFakeBalance]);
 
     return (
         displayActiveAccount &&
