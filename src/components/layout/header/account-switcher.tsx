@@ -97,6 +97,9 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     // Auto-sync fake real balance with demo trading
     const { currentFakeBalance } = useFakeRealBalanceSync();
     
+    // Check if fake real mode is active (declare early so it can be used in useMemo)
+    const isFakeRealMode = fakeAccountService.isFakeRealModeActive() && Boolean(activeAccount?.is_virtual);
+    
     // Force re-render when fake balance updates
     const [, setBalanceUpdateTrigger] = useState(0);
     useEffect(() => {
@@ -197,9 +200,6 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
         search_params.set('account', account_param);
         window.history.pushState({}, '', `${window.location.pathname}?${search_params.toString()}`);
     };
-
-    // Check if fake real mode is active AND user is on a demo account
-    const isFakeRealMode = fakeAccountService.isFakeRealModeActive() && Boolean(activeAccount?.is_virtual);
 
     // Initialize fake real balance when mode is activated
     useEffect(() => {
