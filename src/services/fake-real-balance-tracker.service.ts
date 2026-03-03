@@ -63,11 +63,17 @@ class FakeRealBalanceTrackerService {
     }
 
     /**
-     * Get formatted balance for display
+     * Get formatted balance for display (with commas)
      */
     public getFormattedBalance(): string {
         const balance = this.getBalance();
-        return balance.toFixed(2);
+        const fixedBalance = balance.toFixed(2);
+        
+        // Add commas for thousands separator
+        const parts = fixedBalance.split('.');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        
+        return parts.join('.');
     }
 
     /**
