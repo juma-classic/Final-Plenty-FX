@@ -233,11 +233,16 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     }, [modifiedAccountList, isFakeRealMode]);
 
     const switchAccount = async (loginId: number) => {
-        if (loginId.toString() === activeAccount?.loginid) return;
+        if (loginId.toString() === activeAccount?.loginid) {
+            // Already on this account, just close the dropdown
+            toggleAccountsDialog();
+            return;
+        }
 
         // In fake real mode, block switching to the fake USD account (CR7125309)
         if (isFakeRealMode && loginId.toString() === 'CR7125309') {
             console.log('🚫 Cannot switch to fake USD account - you are trading on demo account');
+            toggleAccountsDialog(); // Close dropdown
             return;
         }
 
@@ -248,13 +253,14 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
             console.log('✅ Switching to Demo account - balance tracking will be paused');
             // Just update the view tab state, don't actually switch accounts
             setCurrentViewTab('demo');
+            toggleAccountsDialog(); // Close dropdown
             return;
         }
 
         // Use fake account service to check if switching should be blocked
         if (fakeAccountService.shouldBlockAccountSwitch(loginId.toString())) {
             fakeAccountService.logFakeAccountInteraction('switch_blocked', loginId.toString());
-            // You could show a toast notification here if needed
+            toggleAccountsDialog(); // Close dropdown
             return;
         }
 
