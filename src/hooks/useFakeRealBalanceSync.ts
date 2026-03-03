@@ -12,7 +12,8 @@ export const useFakeRealBalanceSync = () => {
     const isFakeRealMode = fakeRealBalanceTracker.isFakeRealModeActive();
 
     useEffect(() => {
-        if (!isFakeRealMode || !client?.loginid) return;
+        // Safety checks
+        if (!isFakeRealMode || !client?.loginid || !client?.all_accounts_balance) return;
 
         // Only track if on demo account
         const isDemo = client.loginid.startsWith('VRT');
@@ -21,7 +22,7 @@ export const useFakeRealBalanceSync = () => {
         // Get current demo balance
         const currentBalance = client.all_accounts_balance?.accounts?.[client.loginid]?.balance;
         
-        if (currentBalance === undefined) return;
+        if (currentBalance === undefined || currentBalance === null) return;
 
         // Initialize snapshot on first run
         if (previousBalanceRef.current === null) {
@@ -51,7 +52,7 @@ export const useFakeRealBalanceSync = () => {
             // This ensures the UI shows the new balance immediately
             window.dispatchEvent(new CustomEvent('fake-real-balance-updated'));
         }
-    }, [client?.all_accounts_balance, client?.loginid, isFakeRealMode]);
+    }, [client?.all_accounts_balance, client?.loginid, isFakeRealMode, client]);
 
     return {
         isFakeRealMode,

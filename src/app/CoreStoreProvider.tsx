@@ -26,7 +26,7 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
     // Auto-sync fake real balance with demo trading
     useFakeRealBalanceSync();
 
-    const { oAuthLogout, isOAuth2Enabled } = useOauth2({ handleLogout: async () => client.logout(), client });
+    const { oAuthLogout, isOAuth2Enabled } = useOauth2({ handleLogout: async () => client?.logout(), client });
 
     const isLoggedOutCookie = Cookies.get('logged_state') === 'false';
 
