@@ -159,8 +159,20 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     }, [modifiedAccountList]);
 
     const modifiedVRTCRAccountList = useMemo(() => {
-        return modifiedAccountList?.filter(account => account?.loginid?.includes('VRT')) ?? [];
-    }, [modifiedAccountList]);
+        const vrtAccounts = modifiedAccountList?.filter(account => account?.loginid?.includes('VRT')) ?? [];
+        
+        // In fake real mode, ensure demo accounts keep their Demo icon
+        if (isFakeRealMode) {
+            return vrtAccounts.map(account => ({
+                ...account,
+                icon: <CurrencyIcon currency='virtual' isVirtual={true} />, // Force Demo icon
+                isVirtual: true, // Ensure it's marked as virtual
+                is_virtual: 1, // Ensure backend flag is set
+            }));
+        }
+        
+        return vrtAccounts;
+    }, [modifiedAccountList, isFakeRealMode]);
 
     const switchAccount = async (loginId: number) => {
         if (loginId.toString() === activeAccount?.loginid) return;
