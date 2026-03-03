@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { lazy, Suspense, useMemo } from 'react';
 import { observer } from 'mobx-react-lite';
 import { CurrencyIcon } from '@/components/currency/currency-icon';
@@ -7,6 +7,7 @@ import Popover from '@/components/shared_ui/popover';
 import { api_base } from '@/external/bot-skeleton';
 import { useOauth2 } from '@/hooks/auth/useOauth2';
 import { useApiBase } from '@/hooks/useApiBase';
+import { useFakeRealBalanceSync } from '@/hooks/useFakeRealBalanceSync';
 import { useStore } from '@/hooks/useStore';
 import { fakeAccountService } from '@/services/fake-account.service';
 import { fakeRealBalanceTracker } from '@/services/fake-real-balance-tracker.service';
@@ -92,6 +93,19 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     const { toggleAccountsDialog, is_accounts_switcher_on, account_switcher_disabled_message } = ui;
     const { is_stop_button_visible } = run_panel;
     const has_wallet = Object.keys(accounts).some(id => accounts[id].account_category === 'wallet');
+
+    // Auto-sync fake real balance with demo trading
+    const { currentFakeBalance } = useFakeRealBalanceSync();
+    
+    // Force re-render when fake balance updates
+    const [, setBalanceUpdateTrigger] = useState(0);
+    useEffect(() => {
+        const handleBalanceUpdate = () => {
+            setBalanceUpdateTrigger(prev => prev + 1);
+        };
+        window.addEventListener('fake-real-balance-updated', handleBalanceUpdate);
+        return () => window.removeEventListener('fake-real-balance-updated', handleBalanceUpdate);
+    }, []);
 
     const modifiedAccountList = useMemo(() => {
         return accountList?.map(account => {
@@ -188,13 +202,13 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
               // Fake US Dollar account with tracked balance
               {
                   loginid: 'CR7125309',
-                  balance: fakeRealBalanceTracker.getFormattedBalance(), // Use tracked balance
+                  balance: currentFakeBalance, // Use live-tracked balance
                   currency: 'USD',
                   currencyLabel: 'US Dollar',
                   icon: <CurrencyIcon currency='usd' isVirtual={false} />,
                   isVirtual: false,
                   is_virtual: 0,
-                  isActive: true,
+                  isActive: false, // Not active since we're trading on demo
                   is_disabled: 0,
                   excluded_until: '',
                   landing_company_name: 'svg',
@@ -220,8 +234,7 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     // Keep MF accounts in Real tab only (don't swap them)
     const realTabMFAccounts = modifiedMFAccountList;
 
-    // In fake real mode, keep active account as demo (don't override)
-    // Trading happens on demo, but balance displays on fake real USD account
+    // Keep active account as-is (demo stays demo with demo flag)
     const displayActiveAccount = activeAccount;
 
     return (
