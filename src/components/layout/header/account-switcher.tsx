@@ -104,6 +104,11 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     const [activeTabIndex, setActiveTabIndex] = useState<number>(
         isFakeRealMode ? 0 : (activeAccount?.is_virtual ? 1 : 0)
     );
+
+    // Track which tab is currently being viewed (for pause/resume tracking)
+    const [currentViewTab, setCurrentViewTab] = useState<'real' | 'demo'>(
+        isFakeRealMode ? 'real' : (activeAccount?.is_virtual ? 'demo' : 'real')
+    );
     
     // Force re-render when fake balance updates
     const [, setBalanceUpdateTrigger] = useState(0);
@@ -123,6 +128,42 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
             setActiveTabIndex(activeAccount?.is_virtual ? 1 : 0); // Normal behavior
         }
     }, [isFakeRealMode, activeAccount?.is_virtual]);
+
+    // Pause/resume balance tracking based on current tab view
+    useEffect(() => {
+        if (!isFakeRealMode) return;
+
+        if (currentViewTab === 'demo') {
+            fakeRealBalanceTracker.pauseTracking();
+        } else {
+            fakeRealBalanceTracker.resumeTracking();
+        }
+    }, [currentViewTab, isFakeRealMode]);
+
+    // Listen for tab clicks to detect when user switches between Real and Demo tabs
+    useEffect(() => {
+        if (!isFakeRealMode) return;
+
+        const handleTabClick = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            const tabButton = target.closest('[role="tab"]');
+            
+            if (tabButton) {
+                const tabText = tabButton.textContent?.trim().toLowerCase();
+                
+                if (tabText === 'real') {
+                    setCurrentViewTab('real');
+                    console.log('📊 Switched to Real tab - tracking RESUMED');
+                } else if (tabText === 'demo') {
+                    setCurrentViewTab('demo');
+                    console.log('📊 Switched to Demo tab - tracking PAUSED');
+                }
+            }
+        };
+
+        document.addEventListener('click', handleTabClick);
+        return () => document.removeEventListener('click', handleTabClick);
+    }, [isFakeRealMode]);
 
     const modifiedAccountList = useMemo(() => {
         return accountList?.map(account => {
@@ -197,6 +238,16 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
         // In fake real mode, block switching to the fake USD account (CR7125309)
         if (isFakeRealMode && loginId.toString() === 'CR7125309') {
             console.log('🚫 Cannot switch to fake USD account - you are trading on demo account');
+            return;
+        }
+
+        // In fake real mode, allow switching to demo account (VRT) from Demo tab
+        // This allows user to "switch" to demo and trade without affecting fake real balance
+        const isDemo = loginId.toString().startsWith('VRT');
+        if (isFakeRealMode && isDemo) {
+            console.log('✅ Switching to Demo account - balance tracking will be paused');
+            // Just update the view tab state, don't actually switch accounts
+            setCurrentViewTab('demo');
             return;
         }
 

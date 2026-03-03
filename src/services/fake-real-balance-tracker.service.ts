@@ -7,12 +7,36 @@ class FakeRealBalanceTrackerService {
     private readonly STORAGE_KEY = 'fake_real_balance';
     private readonly INITIAL_BALANCE = 2000;
     private readonly DEMO_BALANCE_KEY = 'demo_balance_snapshot';
+    private readonly TRACKING_PAUSED_KEY = 'fake_real_tracking_paused';
 
     /**
      * Check if fake real mode is active
      */
     public isFakeRealModeActive(): boolean {
         return localStorage.getItem('demo_icon_us_flag') === 'true';
+    }
+
+    /**
+     * Check if balance tracking is paused
+     */
+    public isTrackingPaused(): boolean {
+        return localStorage.getItem(this.TRACKING_PAUSED_KEY) === 'true';
+    }
+
+    /**
+     * Pause balance tracking (when user switches to Demo tab)
+     */
+    public pauseTracking(): void {
+        localStorage.setItem(this.TRACKING_PAUSED_KEY, 'true');
+        console.log('⏸️ Fake Real balance tracking PAUSED');
+    }
+
+    /**
+     * Resume balance tracking (when user is on Real tab)
+     */
+    public resumeTracking(): void {
+        localStorage.setItem(this.TRACKING_PAUSED_KEY, 'false');
+        console.log('▶️ Fake Real balance tracking RESUMED');
     }
 
     /**
@@ -62,6 +86,12 @@ class FakeRealBalanceTrackerService {
     public updateBalanceFromDemo(newDemoBalance: number): void {
         if (!this.isFakeRealModeActive()) return;
 
+        // Don't update if tracking is paused (user is on Demo tab)
+        if (this.isTrackingPaused()) {
+            console.log('⏸️ Balance tracking paused - skipping update');
+            return;
+        }
+
         const snapshotBalance = localStorage.getItem(this.DEMO_BALANCE_KEY);
         if (!snapshotBalance) {
             console.warn('⚠️ No demo balance snapshot found');
@@ -78,8 +108,9 @@ class FakeRealBalanceTrackerService {
         localStorage.setItem(this.STORAGE_KEY, newFakeBalance.toString());
         localStorage.setItem(this.DEMO_BALANCE_KEY, newDemoBalance.toString());
 
-        console.log(`💸 Balance updated: $${currentFakeBalance.toFixed(2)} → $${newFakeBalance.toFixed(2)} (${demoChange >= 0 ? '+' : ''}${demoChange.toFixed(2)})`);
+        console.log(`💸 Balance updated: ${currentFakeBalance.toFixed(2)} → ${newFakeBalance.toFixed(2)} (${demoChange >= 0 ? '+' : ''}${demoChange.toFixed(2)})`);
     }
+
 
     /**
      * Reset fake real balance to initial amount
