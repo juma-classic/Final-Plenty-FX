@@ -339,7 +339,7 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                     ...activeAccount,
                     is_virtual: 1, // Set to 1 (number) to show Demo icon
                     isVirtual: true,
-                    currency: activeAccount.currency, // Keep original currency (USD) for proper icon
+                    currency: 'virtual', // Set to 'virtual' to force Demo icon
                     balance: formattedDemoBalance, // Show actual demo balance with commas
                     loginid: activeAccount.loginid,
                 };
