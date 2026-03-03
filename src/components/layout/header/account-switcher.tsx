@@ -249,8 +249,8 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                   session_duration_limit: 0,
                   trading: {},
               },
-              // Keep other real accounts if they exist
-              ...modifiedCRAccountList,
+              // Keep other real accounts EXCEPT USD (to avoid duplicates)
+              ...modifiedCRAccountList.filter(account => account.currency !== 'USD'),
           ]
         : modifiedCRAccountList;
 
