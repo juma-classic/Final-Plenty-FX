@@ -14,9 +14,13 @@ const DemoAccounts = ({
     activeLoginId,
     oAuthLogout,
     is_logging_out,
+    currentViewTab,
 }: TDemoAccounts) => {
     // Check if fake real mode is active
     const isFakeRealMode = localStorage.getItem('demo_icon_us_flag') === 'true';
+    
+    // In fake real mode, only show reset button when actively viewing demo (Demo icon in top bar)
+    const isViewingDemo = isFakeRealMode && currentViewTab === 'demo';
 
     return (
         <>
@@ -41,9 +45,9 @@ const DemoAccounts = ({
                                     if (!account.is_disabled) switchAccount(account.loginid);
                                 }}
                                 onResetBalance={
-                                    // Show Reset Balance button for demo account (even in fake real mode)
-                                    // This resets demo balance to 10,000 without affecting fake real balance
-                                    isVirtual &&
+                                    // In fake real mode: Only show reset button when viewing demo (Demo icon in top bar)
+                                    // In normal mode: Always show reset button for active demo account
+                                    (isFakeRealMode ? isViewingDemo : isVirtual) &&
                                     activeLoginId === account.loginid &&
                                     convertCommaValue(account.balance) !== 10000
                                         ? () => {

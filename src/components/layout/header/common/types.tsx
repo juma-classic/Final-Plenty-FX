@@ -18,6 +18,7 @@ export type TAccountSwitcherProps = {
     modifiedVRTCRAccountList?: TModifiedAccount[];
     activeLoginId?: string;
     client?: any;
+    currentViewTab?: 'real' | 'demo'; // Add currentViewTab for fake real mode
 };
 
 export type TAccountSwitcher = {
@@ -34,6 +35,7 @@ export type TDemoAccounts = {
     activeLoginId?: string;
     oAuthLogout: () => void;
     is_logging_out: boolean;
+    currentViewTab?: 'real' | 'demo'; // Add currentViewTab for fake real mode
 };
 
 export type TNoNonEuAccounts = {

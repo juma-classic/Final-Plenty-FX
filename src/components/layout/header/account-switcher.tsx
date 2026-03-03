@@ -35,6 +35,7 @@ const RenderAccountItems = ({
     switchAccount,
     activeLoginId,
     client,
+    currentViewTab,
 }: TAccountSwitcherProps) => {
     const { oAuthLogout } = useOauth2({ handleLogout: async () => client.logout(), client });
     const is_low_risk_country = LOW_RISK_COUNTRIES().includes(client.account_settings?.country_code ?? '');
@@ -65,6 +66,7 @@ const RenderAccountItems = ({
                     tabs_labels={tabs_labels}
                     oAuthLogout={oAuthLogout}
                     is_logging_out={client.is_logging_out}
+                    currentViewTab={currentViewTab}
                 />
             </>
         );
@@ -394,6 +396,7 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                             isVirtual={false}
                             activeLoginId={activeAccount?.loginid}
                             client={client}
+                            currentViewTab={currentViewTab}
                         />
                     </UIAccountSwitcher.Tab>
                     <UIAccountSwitcher.Tab title={tabs_labels.demo}>
@@ -405,6 +408,7 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                             isVirtual={true}
                             activeLoginId={activeAccount?.loginid}
                             client={client}
+                            currentViewTab={currentViewTab}
                         />
                     </UIAccountSwitcher.Tab>
                 </UIAccountSwitcher>
