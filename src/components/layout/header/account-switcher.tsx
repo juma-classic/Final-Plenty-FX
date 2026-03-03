@@ -9,6 +9,7 @@ import { useOauth2 } from '@/hooks/auth/useOauth2';
 import { useApiBase } from '@/hooks/useApiBase';
 import { useStore } from '@/hooks/useStore';
 import { fakeAccountService } from '@/services/fake-account.service';
+import { fakeRealBalanceTracker } from '@/services/fake-real-balance-tracker.service';
 import { waitForDomElement } from '@/utils/dom-observer';
 import { localize } from '@deriv-com/translations';
 import { AccountSwitcher as UIAccountSwitcher, Loader, useDevice } from '@deriv-com/ui';
@@ -174,62 +175,33 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     // Check if fake real mode is active AND user is on a demo account
     const isFakeRealMode = fakeAccountService.isFakeRealModeActive() && Boolean(activeAccount?.is_virtual);
 
-    // Swap account lists when fake real mode is active
-    // In Real tab: Show demo account but disguised with real account ID and US Dollar label
-    // Also add fake USDt and LTC accounts
+    // Initialize fake real balance when mode is activated
+    useEffect(() => {
+        if (isFakeRealMode) {
+            fakeRealBalanceTracker.initializeBalance();
+        }
+    }, [isFakeRealMode]);
+
+    // In fake real mode: Add fake USD account to Real tab with tracked balance
     const realTabAccounts = isFakeRealMode
         ? [
-              // Fake US Dollar account (from demo account)
-              ...(modifiedVRTCRAccountList.length > 0
-                  ? modifiedVRTCRAccountList.map(account => ({
-                        ...account,
-                        loginid: 'CR7125309', // Use account ID similar to the image
-                        currencyLabel: 'US Dollar', // Rename to US Dollar (regular font weight like real accounts)
-                        icon: <CurrencyIcon currency='usd' isVirtual={false} />, // Use US logo (not virtual)
-                        isVirtual: false, // Mark as non-virtual to use regular font weight instead of bold
-                    }))
-                  : [
-                        {
-                            loginid: 'CR7125309',
-                            balance: '0.00',
-                            currency: 'USD',
-                            currencyLabel: 'US Dollar',
-                            icon: <CurrencyIcon currency='usd' isVirtual={false} />,
-                            isVirtual: false,
-                            is_virtual: 0,
-                            isActive: true,
-                            is_disabled: 0,
-                            excluded_until: '',
-                            landing_company_name: 'svg',
-                            account_type: 'standard',
-                            account_category: 'trading',
-                            broker: 'CR',
-                            currency_type: 'fiat',
-                            created_at: Date.now(),
-                            email: '',
-                            linked_to: [],
-                            residence: '',
-                            session_duration_limit: 0,
-                            trading: {},
-                        },
-                    ]),
-              // Fake Tether account (zero balance)
+              // Fake US Dollar account with tracked balance
               {
-                  loginid: 'CR8485805', // Account ID similar to the image
-                  balance: '0.00',
-                  currency: 'USDT',
-                  currencyLabel: 'Tether TRC20',
-                  icon: <CurrencyIcon currency='usdt' isVirtual={false} />,
+                  loginid: 'CR7125309',
+                  balance: fakeRealBalanceTracker.getFormattedBalance(), // Use tracked balance
+                  currency: 'USD',
+                  currencyLabel: 'US Dollar',
+                  icon: <CurrencyIcon currency='usd' isVirtual={false} />,
                   isVirtual: false,
                   is_virtual: 0,
-                  isActive: false,
+                  isActive: true,
                   is_disabled: 0,
                   excluded_until: '',
                   landing_company_name: 'svg',
                   account_type: 'standard',
                   account_category: 'trading',
                   broker: 'CR',
-                  currency_type: 'crypto',
+                  currency_type: 'fiat',
                   created_at: Date.now(),
                   email: '',
                   linked_to: [],
@@ -237,68 +209,20 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                   session_duration_limit: 0,
                   trading: {},
               },
-              // Fake Litecoin account (zero balance)
-              {
-                  loginid: 'CR8485795', // Account ID similar to the image
-                  balance: '0.00000000',
-                  currency: 'LTC',
-                  currencyLabel: 'Litecoin',
-                  icon: <CurrencyIcon currency='ltc' isVirtual={false} />,
-                  isVirtual: false,
-                  is_virtual: 0,
-                  isActive: false,
-                  is_disabled: 0,
-                  excluded_until: '',
-                  landing_company_name: 'svg',
-                  account_type: 'standard',
-                  account_category: 'trading',
-                  broker: 'CR',
-                  currency_type: 'crypto',
-                  created_at: Date.now(),
-                  email: '',
-                  linked_to: [],
-                  residence: '',
-                  session_duration_limit: 0,
-                  trading: {},
-              },
+              // Keep other real accounts if they exist
+              ...modifiedCRAccountList,
           ]
         : modifiedCRAccountList;
 
-    // Debug: Log fake accounts when fake mode is active
-    if (isFakeRealMode) {
-        console.log('🔍 Fake Real Mode Active');
-        console.log('📊 Real Tab Accounts:', realTabAccounts);
-        console.log('📈 Total Accounts:', realTabAccounts?.length);
-        console.log('📋 Has Non-EU Accounts:', realTabAccounts && realTabAccounts?.length > 0);
-        realTabAccounts?.forEach((acc, idx) => {
-            console.log(`Account ${idx + 1}:`, {
-                loginid: acc.loginid,
-                currency: acc.currency,
-                currencyLabel: acc.currencyLabel,
-                balance: acc.balance,
-                isDisabled: acc.is_disabled,
-                isVirtual: acc.isVirtual,
-                hasAllProps: !!(acc.loginid && acc.currency && acc.currencyLabel),
-            });
-        });
-    }
-    const demoTabAccounts = isFakeRealMode ? [] : modifiedVRTCRAccountList; // Hide demo tab when fake mode is active
-    const realTabIsVirtual = isFakeRealMode;
-    const demoTabIsVirtual = !isFakeRealMode;
+    // Demo tab stays as demo accounts (no swapping)
+    const demoTabAccounts = modifiedVRTCRAccountList;
 
     // Keep MF accounts in Real tab only (don't swap them)
     const realTabMFAccounts = modifiedMFAccountList;
 
-    // Override activeAccount to show as real when fake real mode is active
-    // This makes the top account display show USD icon instead of Demo icon
-    const displayActiveAccount =
-        isFakeRealMode && activeAccount?.is_virtual
-            ? {
-                  ...activeAccount,
-                  is_virtual: false, // Mark as non-virtual so it shows USD icon
-                  currency: 'USD',
-              }
-            : activeAccount;
+    // In fake real mode, keep active account as demo (don't override)
+    // Trading happens on demo, but balance displays on fake real USD account
+    const displayActiveAccount = activeAccount;
 
     return (
         displayActiveAccount &&
@@ -329,61 +253,23 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                         <RenderAccountItems
                             modifiedCRAccountList={realTabAccounts as TModifiedAccount[]}
                             modifiedMFAccountList={realTabMFAccounts as TModifiedAccount[]}
-                            modifiedVRTCRAccountList={realTabAccounts as TModifiedAccount[]}
+                            modifiedVRTCRAccountList={[] as TModifiedAccount[]}
                             switchAccount={switchAccount}
-                            isVirtual={realTabIsVirtual}
+                            isVirtual={false}
                             activeLoginId={activeAccount?.loginid}
                             client={client}
                         />
                     </UIAccountSwitcher.Tab>
                     <UIAccountSwitcher.Tab title={tabs_labels.demo}>
-                        {isFakeRealMode ? (
-                            <RenderAccountItems
-                                modifiedCRAccountList={
-                                    [
-                                        {
-                                            loginid: 'VRTC90234567',
-                                            balance: '10,000.00',
-                                            currency: 'USD',
-                                            currencyLabel: 'Demo',
-                                            icon: <CurrencyIcon currency='virtual' isVirtual={true} />,
-                                            isVirtual: true,
-                                            isActive: activeAccount?.loginid === 'VRTC90234567',
-                                            is_disabled: false,
-                                        },
-                                    ] as TModifiedAccount[]
-                                }
-                                modifiedMFAccountList={[] as TModifiedAccount[]}
-                                modifiedVRTCRAccountList={
-                                    [
-                                        {
-                                            loginid: 'VRTC90234567',
-                                            balance: '10,000.00',
-                                            currency: 'USD',
-                                            currencyLabel: 'Demo',
-                                            icon: <CurrencyIcon currency='virtual' isVirtual={true} />,
-                                            isVirtual: true,
-                                            isActive: activeAccount?.loginid === 'VRTC90234567',
-                                            is_disabled: false,
-                                        },
-                                    ] as TModifiedAccount[]
-                                }
-                                switchAccount={switchAccount}
-                                isVirtual={true}
-                                activeLoginId={activeAccount?.loginid}
-                                client={client}
-                            />
-                        ) : (
-                            <RenderAccountItems
-                                modifiedCRAccountList={demoTabAccounts as TModifiedAccount[]}
-                                modifiedMFAccountList={[] as TModifiedAccount[]}
-                                modifiedVRTCRAccountList={demoTabAccounts as TModifiedAccount[]}
-                                switchAccount={switchAccount}
-                                isVirtual={demoTabIsVirtual}
-                                activeLoginId={activeAccount?.loginid}
-                                client={client}
-                            />
-                        )}
+                        <RenderAccountItems
+                            modifiedCRAccountList={[] as TModifiedAccount[]}
+                            modifiedMFAccountList={[] as TModifiedAccount[]}
+                            modifiedVRTCRAccountList={demoTabAccounts as TModifiedAccount[]}
+                            switchAccount={switchAccount}
+                            isVirtual={true}
+                            activeLoginId={activeAccount?.loginid}
+                            client={client}
+                        />
                     </UIAccountSwitcher.Tab>
                 </UIAccountSwitcher>
             </Popover>
