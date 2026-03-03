@@ -36,6 +36,17 @@ export const useFakeRealBalanceSync = () => {
         if (currentBalance !== previousBalanceRef.current) {
             const change = currentBalance - previousBalanceRef.current;
             
+            // Detect if this is a reset operation (balance jumped to 10,000)
+            const isReset = currentBalance === 10000 && Math.abs(change) > 1000;
+            
+            if (isReset) {
+                console.log('🔄 Demo balance reset detected - NOT updating fake real balance');
+                // Update snapshot but don't update fake real balance
+                previousBalanceRef.current = currentBalance;
+                fakeRealBalanceTracker.snapshotDemoBalance(currentBalance);
+                return;
+            }
+            
             console.log('💰 Demo balance changed:', {
                 from: previousBalanceRef.current,
                 to: currentBalance,

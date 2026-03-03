@@ -327,14 +327,20 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     // Demo tab: Show Demo icon with actual demo balance
     const displayActiveAccount = useMemo(() => {
         if (isFakeRealMode && activeAccount?.is_virtual) {
-            // If viewing Demo tab, show actual demo account
+            // If viewing Demo tab, show actual demo account with Demo icon
             if (currentViewTab === 'demo') {
+                // Get the actual demo balance from the account
+                const demoBalance = client.all_accounts_balance?.accounts?.[activeAccount.loginid]?.balance;
+                const formattedDemoBalance = demoBalance 
+                    ? addComma(demoBalance.toFixed(getDecimalPlaces(activeAccount.currency)))
+                    : activeAccount.balance;
+
                 return {
                     ...activeAccount,
-                    is_virtual: true, // Keep as virtual to show Demo icon
+                    is_virtual: 1, // Set to 1 (number) to show Demo icon
                     isVirtual: true,
-                    currency: activeAccount.currency, // Keep original currency
-                    balance: activeAccount.balance, // Show actual demo balance
+                    currency: 'Demo', // Show "Demo" instead of "USD"
+                    balance: formattedDemoBalance, // Show actual demo balance with commas
                     loginid: activeAccount.loginid,
                 };
             }
@@ -342,7 +348,7 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
             // If viewing Real tab, show fake USD account
             return {
                 ...activeAccount,
-                is_virtual: false, // Set to false to show US flag
+                is_virtual: 0, // Set to 0 (number) to show US flag
                 isVirtual: false,
                 currency: 'USD',
                 balance: currentFakeBalance, // Show fake real balance
@@ -350,7 +356,7 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
             };
         }
         return activeAccount;
-    }, [isFakeRealMode, activeAccount, currentFakeBalance, currentViewTab]);
+    }, [isFakeRealMode, activeAccount, currentFakeBalance, currentViewTab, client.all_accounts_balance]);
 
     return (
         displayActiveAccount &&

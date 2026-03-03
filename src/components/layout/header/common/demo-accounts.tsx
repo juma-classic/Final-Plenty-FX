@@ -41,8 +41,8 @@ const DemoAccounts = ({
                                     if (!account.is_disabled) switchAccount(account.loginid);
                                 }}
                                 onResetBalance={
-                                    // Hide Reset Balance button when fake real mode is active
-                                    !isFakeRealMode &&
+                                    // Show Reset Balance button for demo account (even in fake real mode)
+                                    // This resets demo balance to 10,000 without affecting fake real balance
                                     isVirtual &&
                                     activeLoginId === account.loginid &&
                                     convertCommaValue(account.balance) !== 10000
