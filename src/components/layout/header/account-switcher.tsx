@@ -234,8 +234,15 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     // Keep MF accounts in Real tab only (don't swap them)
     const realTabMFAccounts = modifiedMFAccountList;
 
-    // Keep active account as-is (demo stays demo with demo flag)
-    const displayActiveAccount = activeAccount;
+    // In fake real mode, override top display to show US flag with fake real balance
+    const displayActiveAccount = isFakeRealMode && activeAccount?.is_virtual
+        ? {
+              ...activeAccount,
+              is_virtual: false, // Mark as non-virtual to show US flag
+              currency: 'USD',
+              balance: currentFakeBalance, // Show fake real balance
+          }
+        : activeAccount;
 
     return (
         displayActiveAccount &&
