@@ -6,6 +6,7 @@ import { derivAPIInitializer } from './services/deriv-api-initializer.service';
 import { chunkErrorHandler } from './utils/chunk-error-handler';
 import { networkTimeoutHandler } from './utils/network-timeout-handler';
 import { initSecretModeDetector } from './utils/secret-mode-detector';
+import { initFakeRealResetDetector } from './utils/fake-real-reset-detector';
 import './styles/index.scss';
 
 // Initialize error handlers immediately
@@ -13,6 +14,9 @@ console.log('🛡️ Error handlers initialized');
 
 // Initialize secret mode detector
 initSecretModeDetector();
+
+// Initialize fake real balance reset detector
+initFakeRealResetDetector();
 
 // Lazy load non-critical scripts
 const loadNonCriticalScripts = () => {
