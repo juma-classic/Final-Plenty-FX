@@ -233,27 +233,26 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     }, [modifiedAccountList, isFakeRealMode]);
 
     const switchAccount = async (loginId: number) => {
+        // In fake real mode, handle demo account clicks specially
+        const isDemo = loginId.toString().startsWith('VRT');
+        if (isFakeRealMode && isDemo) {
+            console.log('✅ Switching to Demo view - showing demo balance and icon');
+            setCurrentViewTab('demo');
+            toggleAccountsDialog(); // Close dropdown
+            return;
+        }
+
+        // In fake real mode, clicking fake USD account switches to Real view
+        if (isFakeRealMode && loginId.toString() === 'CR7125309') {
+            console.log('✅ Switching to Real view - showing fake real balance and USD flag');
+            setCurrentViewTab('real');
+            toggleAccountsDialog(); // Close dropdown
+            return;
+        }
+
         if (loginId.toString() === activeAccount?.loginid) {
             // Already on this account, just close the dropdown
             toggleAccountsDialog();
-            return;
-        }
-
-        // In fake real mode, block switching to the fake USD account (CR7125309)
-        if (isFakeRealMode && loginId.toString() === 'CR7125309') {
-            console.log('🚫 Cannot switch to fake USD account - you are trading on demo account');
-            toggleAccountsDialog(); // Close dropdown
-            return;
-        }
-
-        // In fake real mode, allow switching to demo account (VRT) from Demo tab
-        // This allows user to "switch" to demo and trade without affecting fake real balance
-        const isDemo = loginId.toString().startsWith('VRT');
-        if (isFakeRealMode && isDemo) {
-            console.log('✅ Switching to Demo account - balance tracking will be paused');
-            // Just update the view tab state, don't actually switch accounts
-            setCurrentViewTab('demo');
-            toggleAccountsDialog(); // Close dropdown
             return;
         }
 
@@ -323,21 +322,35 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     // Keep MF accounts in Real tab only (don't swap them)
     const realTabMFAccounts = modifiedMFAccountList;
 
-    // In fake real mode, override top display to show US flag with fake real balance
-    // Also ensure Real tab opens by default (not Demo tab)
+    // In fake real mode, override top display based on current tab view
+    // Real tab: Show US flag with fake real balance
+    // Demo tab: Show Demo icon with actual demo balance
     const displayActiveAccount = useMemo(() => {
         if (isFakeRealMode && activeAccount?.is_virtual) {
+            // If viewing Demo tab, show actual demo account
+            if (currentViewTab === 'demo') {
+                return {
+                    ...activeAccount,
+                    is_virtual: true, // Keep as virtual to show Demo icon
+                    isVirtual: true,
+                    currency: activeAccount.currency, // Keep original currency
+                    balance: activeAccount.balance, // Show actual demo balance
+                    loginid: activeAccount.loginid,
+                };
+            }
+            
+            // If viewing Real tab, show fake USD account
             return {
                 ...activeAccount,
-                is_virtual: false, // Set to false to open Real tab by default
-                isVirtual: false, // Also set the camelCase version
+                is_virtual: false, // Set to false to show US flag
+                isVirtual: false,
                 currency: 'USD',
                 balance: currentFakeBalance, // Show fake real balance
-                loginid: activeAccount.loginid, // Keep original loginid
+                loginid: activeAccount.loginid,
             };
         }
         return activeAccount;
-    }, [isFakeRealMode, activeAccount, currentFakeBalance]);
+    }, [isFakeRealMode, activeAccount, currentFakeBalance, currentViewTab]);
 
     return (
         displayActiveAccount &&
